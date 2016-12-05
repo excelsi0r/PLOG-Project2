@@ -1,4 +1,5 @@
 :- include('config.pl').
+:- include('util.pl').
 
 :- use_module(library(lists)).
 
@@ -22,23 +23,69 @@ port_init:-
 		display_port_by_length,
 		
 		%start cycle to create boats with containers
-		start_cycle(Types).
+		start_cycle(Types, Lines, Columnns).
 		
 
 %=========================================================================
 
-start_cycle(N):-	
+start_cycle(Types, Lines, Columnns):-	
 
+		%get any input
 		get_str,
-		write('Next'),
-		start_cycle(N).
+		
+		%generate boat with containers
+		generate_boat(Types, Lines, Columnns, Boat),
+		
+		%solve to port
+		solve,
+		
+		%expedition
 
-get_str:-	
-			repeat,
-				get_char(C),
-				C = '\n'.
-	
-	
+		%assert new times
+		
+		start_cycle(Types, Lines, Columnns).
+		
+%=========================================================================
+solve:-	
+
+		%solve temp
+		
+
+
+
+%=========================================================================
+generate_boat(Types, Lines, Columnns, Boat):-
+
+		get_nr(Lines, Columnns, N),
+		random_between(1, N, Nr),
+		
+		generate_containers(Nr, Types, Nr, Boat).
+		
+
+generate_containers(0, _,_, Boat):- Boat = [].
+generate_containers(Nr, Types, MaxTime, Boat):-
+
+		%generate type
+		random_between(1, Types, Type),
+		append([Type], [], L1),
+		
+		%generate Weigth
+		MaxWeigth is Type * 100,
+		random_between(1, MaxWeigth, Weigth),
+		append(L1, [Weigth], L2),
+		
+		%generate exp time
+		random_between(1, MaxTime, Time),
+		append(L2, [Time], L3),
+		
+		N2 is Nr - 1,
+		generate_containers(N2, Types, MaxTime, Boat2),
+		
+		append([L3], Boat2, Boat).
+		
+		
+get_nr(Lines, Columnns, Nr):-	Lines >= Columnns, Nr is Lines.
+get_nr(Lines, Columnns, Nr):-	Lines < Columnns, Nr is Columnns.
 
 %=========================================================================
 create_port(Lines, Columnns):-	
