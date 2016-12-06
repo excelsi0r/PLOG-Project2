@@ -36,8 +36,9 @@ start_cycle(Types, Lines, Columnns):-
 		%generate boat with containers
 		generate_boat(Types, Lines, Columnns, Boat),
 		
-		%solve to port
-		solve,
+		%solve to port		
+		solve(Boat),
+		display_port_by_length,
 		
 		%expedition
 
@@ -46,10 +47,15 @@ start_cycle(Types, Lines, Columnns):-
 		start_cycle(Types, Lines, Columnns).
 		
 %=========================================================================
-solve:-	
+solve(Boat):-	
 
 		%solve temp
-		
+		port(L),
+		putTemp(Boat,L,  New),
+		asserta(port(New)).
+
+putTemp(L, [[_ | Rest1] | Rest2], New):- 	append([L], Rest1, L1),
+											append([L1], Rest2, New).	
 
 
 

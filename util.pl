@@ -1,3 +1,5 @@
+:- 	use_module(library(random)).
+
 random_between(Min, Max, Nr):-	
 
 		Min1 is float(Min),
@@ -10,7 +12,10 @@ random_between(Min, Max, Nr):-
 		
 		Nr is integer(N).
 		
-
 		
+get_str:-
 		
-		
+		repeat,
+				
+				get_char(C),
+				C = '\n'.
