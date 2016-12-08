@@ -37,12 +37,13 @@ start_cycle(Types, Lines, Columnns):-
 		generate_boat(Types, Lines, Columnns, Boat),
 		
 		%solve to port		
-		solve(Boat),
-		display_port_by_length,
+		solve(Boat), display_port,
+			
+		%update times and expedition
+		update_times, display_port,
 		
 		%expedition
-
-		%assert new times
+		expedition, display_port,
 		
 		start_cycle(Types, Lines, Columnns).
 		
@@ -56,8 +57,87 @@ solve(Boat):-
 
 putTemp(L, [[_ | Rest1] | Rest2], New):- 	append([L], Rest1, L1),
 											append([L1], Rest2, New).	
+%=========================================================================
+expedition:-	
+		
+		port(L),
+		expedition_by_line(L, New),
+		asserta(port(New)).
+		
+
+expedition_by_line([], New):-	New = [].	
+expedition_by_line([Line | Rest], New):-	
+
+		
+		expedition_by_elem(Line, NewLine),
+		expedition_by_line(Rest, New2),
+		
+		append([NewLine], New2, New).
+
+expedition_by_elem([], NewLine):-	NewLine = [].		
+expedition_by_elem([Containers | Rest], NewLine):-	
+
+		expedition_containers(Containers, NewContainers),
+		expedition_by_elem(Rest, NewContainers2),
+		
+		append([NewContainers], NewContainers2, NewLine).
+		
+expedition_containers([], NewContainers):-	NewContainers = [].
+expedition_containers([[Type | [Heigth | [Exp]]] | Rest], NewContainers):-	
+
+		NewTime is Exp - 1,
+		expedition_container(Type, Heigth, NewTime, NewContainer),		
+		expedition_containers(Rest, NewContainers2),
+		
+		append(NewContainer, NewContainers2, NewContainers).
+		
+expedition_container(Type, Heigth, Time, Container):-	
+
+			Time > 0,
+			
+			append([Type], [Heigth], L1),
+			append(L1, [Time], L2),
+			
+			Container = [L2].
+			
+expedition_container(_,_,_, Container):-	Container = [].
 
 
+%=========================================================================
+update_times:-	
+		
+		port(L),
+		upate_boat_by_line(L, New),
+		asserta(port(New)).
+		
+
+upate_boat_by_line([], New):-	New = [].	
+upate_boat_by_line([Line | Rest], New):-	
+
+		
+		update_boat_by_elem(Line, NewLine),
+		upate_boat_by_line(Rest, New2),
+		
+		append([NewLine], New2, New).
+
+update_boat_by_elem([], NewLine):-	NewLine = [].		
+update_boat_by_elem([Containers | Rest], NewLine):-	
+
+		update_containers(Containers, NewContainers),
+		update_boat_by_elem(Rest, NewContainers2),
+		
+		append([NewContainers], NewContainers2, NewLine).
+		
+update_containers([], NewContainers):-	NewContainers = [].
+update_containers([[Type | [Heigth | [Exp]]] | Rest], NewContainers):-	
+
+		append([Type], [Heigth], L1),
+		NewTime is Exp - 1,
+		
+		append(L1, [NewTime], NewContainer),	
+		
+		update_containers(Rest, NewContainers2),		
+		append([NewContainer], NewContainers2, NewContainers).	
 
 %=========================================================================
 generate_boat(Types, Lines, Columnns, Boat):-
@@ -108,6 +188,14 @@ create_port_line(Lines,Columnns,L):-
 		N is Lines - 1,
 		create_port_line(N, Columnns, L2),
 		append([L1], L2, L).
+		
+%=========================================================================
+display_port:-	
+
+		port(L),
+		write(L), nl.
+
+
 		
 display_port_by_length:-	
 
