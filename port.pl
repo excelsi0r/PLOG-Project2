@@ -4,9 +4,11 @@
 :- use_module(library(lists)).
 
 :- 	dynamic
-	port/1.
+	port/1,
+	crane/2.
 	
 port(_).
+crane(_,_).
 
 port_init:- 
 
@@ -22,6 +24,9 @@ port_init:-
 		create_port(Lines, Columnns),	
 		display_port_by_length,
 		
+		%assert new crane
+		reset_crane,
+		
 		%start cycle to create boats with containers
 		start_cycle(Types, Lines, Columnns).
 		
@@ -33,17 +38,20 @@ start_cycle(Types, Lines, Columnns):-
 		%get any input
 		get_str,
 		
+		%reset crane
+		reset_crane,
+		
 		%generate boat with containers
 		generate_boat(Types, Lines, Columnns, Boat),
 		
 		%solve to port		
-		solve(Boat), display_port,
+		solve(Boat),
 			
 		%update times and expedition
-		update_times, display_port,
+		update_times,
 		
 		%expedition
-		expedition, display_port,
+		expedition,
 		
 		start_cycle(Types, Lines, Columnns).
 		
@@ -57,6 +65,24 @@ solve(Boat):-
 
 putTemp(L, [[_ | Rest1] | Rest2], New):- 	append([L], Rest1, L1),
 											append([L1], Rest2, New).	
+%=========================================================================
+reset_crane:-	asserta(crane(0,0)).
+
+update_crane(X, Y):-	asserta(crane(X,Y)).
+
+get_crane_mov_time(NewX, NewY, Time):-	
+
+		crane(X,Y),
+		
+		XDiff is NewX - X,
+		YDiff is NewY - Y,
+		
+		X1 is XDiff * XDiff,
+		Y1 is YDiff * YDiff,
+		
+		Diff is X1 + Y1,
+		
+		Time is sqrt(Diff).
 %=========================================================================
 expedition:-	
 		
