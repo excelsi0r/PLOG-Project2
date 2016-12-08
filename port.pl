@@ -85,15 +85,14 @@ expedition_by_elem([Containers | Rest], NewLine):-
 expedition_containers([], NewContainers):-	NewContainers = [].
 expedition_containers([[Type | [Heigth | [Exp]]] | Rest], NewContainers):-	
 
-		NewTime is Exp - 1,
-		expedition_container(Type, Heigth, NewTime, NewContainer),		
+		expedition_container(Type, Heigth, Exp, NewContainer),		
 		expedition_containers(Rest, NewContainers2),
 		
 		append(NewContainer, NewContainers2, NewContainers).
 		
 expedition_container(Type, Heigth, Time, Container):-	
 
-			Time > 0,
+			Time >= 1,
 			
 			append([Type], [Heigth], L1),
 			append(L1, [Time], L2),
