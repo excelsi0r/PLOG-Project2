@@ -13,8 +13,8 @@ timing(Port, Total):-
 		check_if_empty(Port, Bool),		
 		timing_eval(Port, Total, Bool).
 		
-timing_eval(Port, Total, "true"):-	timing_not_empty(Port, Total).
-timing_eval(_, Total, "false"):-	Total is 0.
+timing_eval(Port, Total, 'true'):-	timing_not_empty(Port, Total).
+timing_eval(_, Total, 'false'):-	Total is 0.
 		
 		
 timing_not_empty(Port, Total):-	
@@ -40,3 +40,31 @@ create_port_line(Lines,Columnns,L):-
 		N is Lines - 1,
 		create_port_line(N, Columnns, L2),
 		append([L1], L2, L).
+		
+%======================================================
+check_if_empty(Port, Bool):-	
+
+		flatten_port(Port, NewPort),
+		length(NewPort, N),
+		eval_check_if_empty(N, Bool).
+		
+eval_check_if_empty(N, Bool):-	N == 0, Bool = 'true'.
+eval_check_if_empty(N, Bool):-	N \= 0, Bool = 'false'.
+
+%=======================================================
+flatten_port([], NewPort):-	NewPort = [].
+flatten_port([Line | Rest], NewPort):-	
+
+		flatten(Line, NewLine),
+		flatten_port(Rest, NewRest),
+		append(NewLine, NewRest, NewPort).
+		
+flatten([], NewLine):-	NewLine = [].
+flatten([Elem | Rest], NewLine):-	
+
+		flatten(Rest, NewLine2),
+		append(Elem, NewLine2, NewLine).
+		
+
+
+		
