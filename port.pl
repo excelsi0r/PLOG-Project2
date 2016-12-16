@@ -98,7 +98,8 @@ expedition_by_elem([Container | Rest], NewElem, TimeElem):-
 		
 calculate_container([Type | [Heigth | [Exp]]], NewContainer, TimeContainer):-	
 
-		TimeContainer is Type * 60 + Heigth,
+		Factor is 1 / Type,
+		TimeContainer is Factor * 60 + Heigth,
 		eval_container(Type, Heigth, Exp, NewContainer).
 		
 eval_container(Type, Heigth, Exp, NewContainer):-	
