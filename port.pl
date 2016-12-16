@@ -14,15 +14,15 @@ timing(Port, Total):-
 		timing_eval(Port, Total, Bool).
 		
 timing_eval(Port, Total, 'true'):-	timing_not_empty(Port, Total).
-timing_eval(_, Total, 'false'):-	Total is 0.
+timing_eval(_, Total, 'false'):-	Total = 0.
 		
 		
 timing_not_empty(Port, Total):-	
 
-		expedition(Port, NewPort, Time),
+		expedition_port(Port, NewPort, Time),
 		update_times(NewPort, NewPort2),
 		timing(NewPort2, Time2),
-		Total is Times + Time2.
+		Total is Time + Time2.
 		
 %======================================================
 create_port(Port):-	
@@ -64,6 +64,88 @@ flatten([Elem | Rest], NewLine):-
 
 		flatten(Rest, NewLine2),
 		append(Elem, NewLine2, NewLine).
+
+%======================================================
+expedition_port(Port, NewPort, Time):-	expedition(Port, NewPort, Time, 1).
+
+expedition([], NewPort, Time, _):-	NewPort = [], Time = 0.
+expedition([Line | Rest], NewPort, Time, Y):-	
+		
+		expedition_by_line(Line, NewLine, TimeLine, Y, 1),
+		Y1 is Y + 1,
+		expedition(Rest, NewRest, TimeRest, Y1),
+		append([NewLine], NewRest, NewPort),
+		Time is TimeLine + TimeRest.
+
+expedition_by_line([], NewLine, TimeLine,_,_):-	NewLine = [], TimeLine = 0.
+expedition_by_line([Elem | Rest], NewLine, TimeLine,Y,X):-	
+	
+		expedition_by_elem(Elem, NewElem, TimeElem1),
+		calculate_time_crane(TimeElem1, Y,X, TimeElem),
+		X1 is X + 1,
+		expedition_by_line(Rest, NewRest, TimeRest,Y,X1),
+		append([NewElem], NewRest, NewLine),
+		TimeLine is TimeElem + TimeRest.
+		
+expedition_by_elem([], NewElem, TimeElem):-	NewElem = [], TimeElem = 0.
+expedition_by_elem([Container | Rest], NewElem, TimeElem):-	
+		
+		calculate_container(Container, NewContainer, TimeContainer),
+		expedition_by_elem(Rest, NewRest, TimeRest),
+		calculate_time(NewContainer, TimeContainer, TimeRest, TimeElem),
+		append(NewContainer, NewRest, NewElem).
+		
+calculate_container([Type | [Heigth | [Exp]]], NewContainer, TimeContainer):-	
+
+		TimeContainer is Type * 60 + Heigth,
+		eval_container(Type, Heigth, Exp, NewContainer).
+		
+eval_container(Type, Heigth, Exp, NewContainer):-	
+
+		Exp >= 1,
+		append([Type], [Heigth], L1),
+		append(L1, [Exp], L2),		
+		NewContainer = [L2].
+
+eval_container(_,_,0,NewContainer):-	NewContainer = [].
+		
+		
+calculate_time([], TimeContainer, TimeRest, TimeElem):-	TimeElem is TimeContainer + TimeRest.
+calculate_time(_, TimeContainer, TimeRest, TimeElem):-
+			
+			TimeRest > 0,
+			TimeElem is TimeContainer + TimeRest.
+			
+calculate_time(_, _, TimeRest, TimeElem):-			
+	
+			TimeRest == 0,
+			TimeElem = 0.
+			
+calculate_time_crane(TimeElem1, Y,X, TimeElem):-	
+
+		TimeElem1 >= 1,
+		
+		Y1 is Y*Y,
+		X1 is X*X,
+		
+		Diff is X1 + Y1,
+		
+		TimeTemp is sqrt(Diff),
+		
+		TimeElem is TimeElem1 + TimeTemp*100.
+
+calculate_time_crane(TimeElem1, _,_, TimeElem):-	
+
+		TimeElem1 == 0,
+		
+		TimeElem is TimeElem1.
+
+		
+		
+		
+		
+		
+
 		
 
 
