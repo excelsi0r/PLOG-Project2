@@ -13,8 +13,8 @@ timing(Port, Total):-
 		check_if_empty(Port, Bool),		
 		timing_eval(Port, Total, Bool).
 		
-timing_eval(Port, Total, 'true'):-	timing_not_empty(Port, Total).
-timing_eval(_, Total, 'false'):-	Total = 0.
+timing_eval(_, Total, 'true'):-	Total = 0.
+timing_eval(Port, Total, 'false'):-	timing_not_empty(Port, Total).
 		
 		
 timing_not_empty(Port, Total):-	
@@ -139,6 +139,37 @@ calculate_time_crane(TimeElem1, _,_, TimeElem):-
 		TimeElem1 == 0,
 		
 		TimeElem is TimeElem1.
+		
+%===================================================================
+update_times(Port, Port2):-	upate_boat_by_line(Port, Port2).
+
+upate_boat_by_line([], New):-	New = [].	
+upate_boat_by_line([Line | Rest], New):-	
+
+		
+		update_boat_by_elem(Line, NewLine),
+		upate_boat_by_line(Rest, New2),
+		
+		append([NewLine], New2, New).
+
+update_boat_by_elem([], NewLine):-	NewLine = [].		
+update_boat_by_elem([Containers | Rest], NewLine):-	
+
+		update_containers(Containers, NewContainers),
+		update_boat_by_elem(Rest, NewContainers2),
+		
+		append([NewContainers], NewContainers2, NewLine).
+		
+update_containers([], NewContainers):-	NewContainers = [].
+update_containers([[Type | [Heigth | [Exp]]] | Rest], NewContainers):-	
+
+		append([Type], [Heigth], L1),
+		NewTime is Exp - 1,
+		
+		append(L1, [NewTime], NewContainer),	
+		
+		update_containers(Rest, NewContainers2),		
+		append([NewContainer], NewContainers2, NewContainers).	
 
 		
 		
